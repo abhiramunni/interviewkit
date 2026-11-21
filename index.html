@@ -928,4 +928,166 @@ function endMock(finished){
   $("mockRevise").innerHTML=revise.length?"<b style='color:var(--amber)'>Revise next:</b><br>"+revise.map(function(q){return "· "+esc(q.q);}).join("<br>"):"No questions marked for review — the deck is clean.";
   renderDash();renderDeck();renderTopics();
 }
-<!-- @@NEXT@@ -->
+/* ---- subnet lab UI ---- */
+function subnetRender(){
+  var ip=$("subIp").value.trim(),cidr=$("subCidr").value;
+  var r=subnetCalc(ip,cidr);
+  if(r.err){$("subErr").textContent=r.err;["subNet","subBc","subRange","subHosts","subMask","subWild"].forEach(function(id){$(id).textContent="—";});return;}
+  $("subErr").textContent="";
+  $("subNet").textContent=r.network;$("subBc").textContent=r.broadcast;
+  $("subRange").textContent=r.range;$("subHosts").textContent=String(r.hosts);
+  $("subMask").textContent=r.mask;$("subWild").textContent=r.wildcard;
+}
+function subnetTry(ip,cidr){
+  $("subIp").value=ip;$("subCidr").value=String(cidr);subnetRender();
+  toast(ip+" /"+cidr);
+}
+/* ---- STAR builder ---- */
+function starText(st){
+  return (st.q||"Tell me about a time you solved a tough problem.")+"\n\n"+(st.s||"")+" "+(st.t||"")+" "+(st.a||"")+" "+(st.r||"");
+}
+function buildStar(){
+  var st={q:$("starRole").value.trim(),s:$("starS").value.trim(),t:$("starT").value.trim(),a:$("starA").value.trim(),r:$("starR").value.trim()};
+  var out=$("starOut");
+  if(!st.s&&!st.t&&!st.a&&!st.r){toast("Fill in at least one of the four boxes first.");return;}
+  out.style.display="";out.textContent=starText(st);
+}
+function saveStar(){
+  var st={id:"s-"+Date.now(),q:$("starRole").value.trim(),s:$("starS").value.trim(),t:$("starT").value.trim(),a:$("starA").value.trim(),r:$("starR").value.trim(),sample:false};
+  if(!st.s&&!st.t&&!st.a&&!st.r){toast("Fill in at least one of the four boxes first.");return;}
+  state.star.push(st);save();renderStarList();
+  ["starRole","starS","starT","starA","starR"].forEach(function(id){$(id).value="";});
+  $("starOut").style.display="none";
+  toast("Story saved.");
+}
+function renderStarList(){
+  var box=$("starList");box.innerHTML="";
+  state.star.forEach(function(st){
+    var d=document.createElement("div");d.className="star-item";
+    d.innerHTML='<b>'+esc(st.q||"My story")+'</b>'+(st.sample?' <span class="pill info">SAMPLE</span>':"")+'<p>'+esc(starText(st))+'</p><div style="display:flex;gap:8px;margin-top:10px"><button class="btn small ghost" type="button">Copy answer</button><button class="btn small ghost" type="button">Delete</button></div>';
+    var btns=d.querySelectorAll("button");
+    btns[0].addEventListener("click",function(){copyText(starText(st),"Answer copied.");});
+    btns[1].addEventListener("click",function(){state.star=state.star.filter(function(x){return x.id!==st.id;});save();renderStarList();toast("Story deleted.");});
+    box.appendChild(d);
+  });
+}
+function copyText(text,msg){
+  function done(){toast(msg||"Copied.");}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){fallbackCopy(text);done();});}
+  else{fallbackCopy(text);done();}
+}
+function fallbackCopy(text){
+  var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";
+  document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);
+}
+/* ---- interview form ---- */
+function openInterviewForm(){
+  var iv=state.interview;
+  $("ivRoleIn").value=iv.role||"";$("ivCoIn").value=iv.company||"";$("ivDateIn").value=iv.date||todayLocal();
+  $("ivSheetBack").classList.add("show");
+}
+function closeInterviewForm(){$("ivSheetBack").classList.remove("show");}
+function saveInterview(){
+  var role=$("ivRoleIn").value.trim(),co=$("ivCoIn").value.trim(),dt=$("ivDateIn").value;
+  if(!role){toast("Give the role a name first.");return;}
+  if(!dt){toast("Pick an interview date.");return;}
+  state.interview={role:role,company:co||"—",date:dt,sample:false};
+  save();renderInterview();closeInterviewForm();
+  toast("Interview saved — "+daysUntil(dt)+" days to go.");
+}
+/* ---- summary / samples / erase ---- */
+function summaryText(){
+  var iv=state.interview,k=knownCount(),pc=Math.round(k/QUESTIONS.length*100);
+  var w=weakestTopic();
+  var done=CHECKLIST.filter(function(c){return state.checklist[c.id];}).length;
+  var lines=[
+    "InterviewKit — my interview prep",
+    "Role: "+iv.role+" at "+iv.company+(iv.date?" · "+fmtDate(iv.date)+" ("+daysUntil(iv.date)+" days away)":""),
+    "Readiness: "+pc+"% ("+k+" of "+QUESTIONS.length+" questions known, "+reviewCount()+" to review)",
+    "Weakest topic: "+w.w.name+" ("+w.pc+"%)",
+    "Best rapid-fire drill: "+(state.drillBest||"not tried yet")+(state.mockBest==null?" · Mock: not tried yet":" · Best mock: "+state.mockBest+"/10"),
+    "Interview-day checklist: "+done+" of "+CHECKLIST.length+" done",
+    "STAR stories saved: "+state.star.length
+  ];
+  return lines.join("\n");
+}
+function copySummary(){copyText(summaryText(),"Summary copied — paste it anywhere.");}
+function removeSamples(){
+  var had=false;
+  if(state.interview.sample){state.interview={role:"",company:"",date:"",sample:false};had=true;}
+  var before=state.star.length;
+  state.star=state.star.filter(function(s){return !s.sample;});
+  if(state.star.length!==before)had=true;
+  save();renderInterview();renderStarList();
+  toast(had?"Samples removed.":"No samples left to remove.");
+}
+function eraseAll(btn){
+  if(!btn.dataset.armed){btn.dataset.armed="1";btn.textContent="Tap again to erase everything";setTimeout(function(){delete btn.dataset.armed;btn.textContent="Erase everything";},4000);return;}
+  try{localStorage.removeItem(KEY);}catch(e){}
+  location.reload();
+}
+/* ---- coach + intro ---- */
+var COACH=[
+ {k:"Step 1 of 3",t:"Mark what you know",b:"Open the question deck and tap a card. Read the model answer, then mark it 'I know this' only if you could say it out loud. The readiness ring is honest — it only counts those."},
+ {k:"Step 2 of 3",t:"Drill, then sit a mock",b:"The rapid-fire drill is 60 seconds of recall. The timed mock is 10 questions, two minutes each, graded by you. Do the mock the day before your interview — never for the first time on the day."},
+ {k:"Step 3 of 3",t:"Use the lab and the checklist",b:"The Subnet Lab answers the whiteboard question in seconds. The STAR builder turns your stories into copy-ready answers. And the interview-day checklist stops the small things — dead battery, no ID — from ruining the big day."}
+];
+var coachStep=0;
+function coachShow(step){
+  coachStep=step;var c=COACH[step];
+  $("coachKicker").textContent=c.k;$("coachTitle").textContent=c.t;$("coachBody").textContent=c.b;
+  $("coachNext").textContent=step===2?"Start preparing":"Next";
+  var dots=document.querySelectorAll("#coach .dots i");
+  dots.forEach(function(d,i){d.classList.toggle("on",i<=step);});
+  $("coach").classList.add("show");
+}
+function coachNext(){
+  if(coachStep>=2){coachSkip();return;}
+  coachShow(coachStep+1);
+}
+function coachSkip(){
+  $("coach").classList.remove("show");
+  state.coachDone=true;save();
+}
+function introInit(){
+  var intro=$("intro");
+  var quick=state.seen;
+  function hide(){intro.classList.add("hide");setTimeout(function(){intro.remove();},700);}
+  intro.addEventListener("click",hide);
+  setTimeout(hide,quick?1400:4000);
+  state.seen=true;save();
+}
+/* ---- boot ---- */
+function renderAll(){
+  renderDash();renderTopics();renderDeck();renderGuides();renderChecklist();renderStarList();renderInterview();subnetRender();
+  var sel=$("subCidr");if(!sel.options.length){for(var i=8;i<=30;i++){var o=document.createElement("option");o.value=String(i);o.textContent="/"+i;if(i===24)o.selected=true;sel.appendChild(o);}}
+  $("subIp").addEventListener("input",subnetRender);
+  $("subCidr").addEventListener("change",subnetRender);
+  $("markKnownBtn").addEventListener("click",function(){markSheet("known");});
+  $("markReviewBtn").addEventListener("click",function(){markSheet("review");});
+  $("markClearBtn").addEventListener("click",function(){markSheet("clear");});
+  Array.prototype.forEach.call(document.querySelectorAll("#deckFilters .fchip"),function(ch){
+    ch.addEventListener("click",function(){deckFilter=ch.getAttribute("data-f");syncFilterChips();renderDeck();});
+  });
+  $("tourBtn").addEventListener("click",function(){coachShow(0);});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeSheet();closeInterviewForm();}});
+  subnetRender();
+}
+renderAll();
+introInit();
+if(!state.coachDone){setTimeout(function(){coachShow(0);},state.seen?1600:4600);}
+window.InterviewKit={
+  TOPICS:TOPICS,QUESTIONS:QUESTIONS,GUIDES:GUIDES,CHECKLIST:CHECKLIST,
+  state:state,knownCount:knownCount,reviewCount:reviewCount,topicCount:topicCount,weakestTopic:weakestTopic,
+  subnetCalc:subnetCalc,summaryText:summaryText,daysUntil:daysUntil,fmtDate:fmtDate,
+  scrollToId:scrollToId,openSheet:openSheet,closeSheet:closeSheet,markSheet:markSheet,toggleFlip:toggleFlip,
+  startDrill:startDrill,drillAnswer:drillAnswer,endDrill:endDrill,startMock:startMock,mockAnswer:mockAnswer,endMock:endMock,
+  subnetTry:subnetTry,buildStar:buildStar,saveStar:saveStar,
+  openInterviewForm:openInterviewForm,closeInterviewForm:closeInterviewForm,saveInterview:saveInterview,
+  copySummary:copySummary,removeSamples:removeSamples,eraseAll:eraseAll,
+  coachNext:coachNext,coachSkip:coachSkip,renderAll:renderAll
+};
+})();
+</script>
+</body>
+</html>
