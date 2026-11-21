@@ -233,3 +233,48 @@ footer{border-top:1px solid var(--line);padding:34px 0 44px}
 </style>
 </head>
 <body>
+<div id="intro" role="dialog" aria-label="Welcome to InterviewKit">
+  <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#241505" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+  <h1>Walk in <em>ready.</em></h1>
+  <p>Sixty real interview questions, a timed mock, and a plan<br>for the day itself — all in one calm place.</p>
+  <div class="bar"><i></i></div>
+  <div class="skip">Tap anywhere to skip</div>
+</div>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="logo" href="#"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>InterviewKit</a>
+    <div class="spacer"></div>
+    <span class="chip" id="topReadiness">Readiness <b>0%</b></span>
+    <span class="chip" id="topCountdown" style="display:none"></span>
+    <button class="btn small ghost" id="tourBtn" type="button">Take the tour</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-photo"><img src="{{HERO_IMG}}" alt="A job seeker preparing for an interview at a sunlit desk with a laptop, notebook and coffee"></div>
+  <div class="wrap hero-copy">
+    <p class="kicker">Network engineer interview prep</p>
+    <h1>Walk in ready. <em>Answer like you belong.</em></h1>
+    <p>Sixty questions a real interviewer asks — CCNA fundamentals, routing and switching, FortiGate security, troubleshooting, and the HR round — each with a plain-words model answer. Mark what you know, drill what you don't, then sit a timed mock before the day.</p>
+    <div class="card interview-card">
+      <div>
+        <div class="role" id="ivRole">Network Engineer</div>
+        <div class="co"><span id="ivCoName">Example Corp</span> &middot; <span id="ivDateLabel">28 Nov 2026</span> <span class="pill info" id="ivSamplePill">SAMPLE</span></div>
+        <p class="helper" id="ivHint" style="margin-top:6px">Set your real interview below — the countdown and the plan follow it.</p>
+      </div>
+      <div class="countdown" id="ivCountdown" aria-label="Days until the interview">
+        <div class="cd"><b id="cdD">7</b><span>days</span></div>
+        <div class="cd"><b id="cdH">00</b><span>hours</span></div>
+        <div class="cd"><b id="cdM">00</b><span>mins</span></div>
+        <div class="cd"><b id="cdS">00</b><span>secs</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+      <button class="btn amber" type="button" onclick="InterviewKit.scrollToId('deckSec')">Start the question deck</button>
+      <button class="btn ghost" type="button" onclick="InterviewKit.scrollToId('stageSec')">Sit a timed mock</button>
+      <button class="btn ghost" type="button" onclick="InterviewKit.openInterviewForm()">Set my interview</button>
+    </div>
+  </div>
+</section>
+<!-- @@NEXT@@ -->
