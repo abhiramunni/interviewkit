@@ -320,4 +320,45 @@ footer{border-top:1px solid var(--line);padding:34px 0 44px}
     <div class="rail" id="topicRail"></div>
   </div>
 </section>
+<section id="deckSec" style="padding-top:10px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="kicker">The question deck</p>
+        <h2>Sixty questions. Zero surprises.</h2>
+        <p class="helper">Tap any card to see the model answer, then mark it honestly. Flip mode turns the deck into flashcards.</p>
+      </div>
+      <button class="btn ghost" type="button" id="flipToggle" onclick="InterviewKit.toggleFlip()">Flashcard mode: off</button>
+    </div>
+    <div class="filters" id="deckFilters">
+      <button class="fchip on" type="button" data-f="all">All 60</button>
+      <button class="fchip" type="button" data-f="basics">Networking basics</button>
+      <button class="fchip" type="button" data-f="routing">Routing &amp; switching</button>
+      <button class="fchip" type="button" data-f="security">Security &amp; FortiGate</button>
+      <button class="fchip" type="button" data-f="trouble">Troubleshooting</button>
+      <button class="fchip" type="button" data-f="hr">HR &amp; behavioural</button>
+      <button class="fchip" type="button" data-f="review">To review only</button>
+      <button class="fchip" type="button" data-f="unknown">Not yet marked</button>
+    </div>
+    <div class="deck" id="deck"></div>
+    <p class="helper" id="deckCount" style="margin-top:14px"></p>
+  </div>
+</section>
+
+<div class="sheet-back" id="qSheetBack" onclick="if(event.target===this)InterviewKit.closeSheet()">
+  <div class="sheet" role="dialog" aria-label="Question detail">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
+      <div><p class="kicker" id="sheetTopic">Topic</p><h3 id="sheetQ">Question</h3></div>
+      <button class="btn small ghost" type="button" onclick="InterviewKit.closeSheet()">Close</button>
+    </div>
+    <div class="ans"><b>Model answer — say it in your own words</b><span id="sheetA"></span></div>
+    <div class="keyline"><b>Remember this:</b> <span id="sheetK"></span></div>
+    <div class="mark-btns" style="margin-top:18px">
+      <button class="btn amber" type="button" id="markKnownBtn">I know this</button>
+      <button class="btn ghost" type="button" id="markReviewBtn">Review later</button>
+      <button class="btn ghost" type="button" id="markClearBtn">Clear mark</button>
+    </div>
+    <p class="helper" style="margin-top:12px">Honest marking is the whole point — the readiness ring only counts "I know this".</p>
+  </div>
+</div>
 <!-- @@NEXT@@ -->
