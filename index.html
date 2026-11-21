@@ -786,4 +786,146 @@ function renderInterview(){
   }
   tick();cdTimer=setInterval(tick,1000);
 }
+/* ---- question deck ---- */
+var deckFilter="all",flipMode=false,sheetQ=null;
+function topicName(tid){var t=TOPICS.filter(function(x){return x.id===tid;})[0];return t?t.name:tid;}
+function diffDots(d){var s="";for(var i=1;i<=3;i++)s+='<i class="'+(i<=d?"on":"")+'"></i>';return '<span class="diff" title="Difficulty '+d+' of 3">'+s+'</span>';}
+function statusPill(qid){var m=state.known[qid];if(m==="known")return '<span class="pill good">KNOWN</span>';if(m==="review")return '<span class="pill warn">REVIEW</span>';return '<span class="pill info">NEW</span>';}
+function deckList(){
+  return QUESTIONS.filter(function(q){
+    if(deckFilter==="review")return state.known[q.id]==="review";
+    if(deckFilter==="unknown")return !state.known[q.id];
+    if(deckFilter==="all")return true;
+    return q.topic===deckFilter;
+  });
+}
+function renderDeck(){
+  var list=deckList();var deck=$("deck");deck.innerHTML="";
+  list.forEach(function(q){
+    var card=document.createElement("article");card.className="card qcard";card.tabIndex=0;
+    card.setAttribute("role","button");card.setAttribute("aria-label",q.q);
+    var body=flipMode
+      ?'<div class="q">'+esc(q.q)+'</div><div class="key">Tap to reveal the model answer — then grade yourself honestly.</div>'
+      :'<div class="q">'+esc(q.q)+'</div><div class="key">'+esc(q.key)+'</div>';
+    card.innerHTML='<div class="top">'+body+'</div><div class="foot">'+statusPill(q.id)+'<span class="pill info">'+esc(topicName(q.topic))+'</span>'+diffDots(q.diff)+'</div>';
+    card.addEventListener("click",function(){openSheet(q.id);});
+    card.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();openSheet(q.id);}});
+    deck.appendChild(card);
+  });
+  if(!list.length){deck.innerHTML='<div class="empty">Nothing here yet — try a different filter.</div>';}
+  $("deckCount").textContent="Showing "+list.length+" of "+QUESTIONS.length+" questions"+(flipMode?" · flashcard mode on":"");
+}
+function syncFilterChips(){
+  Array.prototype.forEach.call(document.querySelectorAll("#deckFilters .fchip"),function(ch){
+    ch.classList.toggle("on",ch.getAttribute("data-f")===deckFilter);
+  });
+}
+function openSheet(qid){
+  var q=QUESTIONS.filter(function(x){return x.id===qid;})[0];if(!q)return;sheetQ=qid;
+  $("sheetTopic").textContent=topicName(q.topic)+" · Difficulty "+q.diff+" of 3";
+  $("sheetQ").textContent=q.q;$("sheetA").textContent=q.a;$("sheetK").textContent=q.key;
+  $("qSheetBack").classList.add("show");
+  var m=state.known[qid];
+  $("markKnownBtn").textContent=m==="known"?"Known — marked":"I know this";
+  $("markReviewBtn").textContent=m==="review"?"Review — marked":"Review later";
+}
+function closeSheet(){$("qSheetBack").classList.remove("show");sheetQ=null;}
+function markSheet(kind){
+  if(!sheetQ)return;
+  if(kind==="clear")delete state.known[sheetQ];else state.known[sheetQ]=kind;
+  save();renderDash();renderDeck();renderTopics();openSheet(sheetQ);
+  toast(kind==="clear"?"Mark cleared":kind==="known"?"Marked known — nice.":"Marked for review.");
+}
+function toggleFlip(){
+  flipMode=!flipMode;
+  $("flipToggle").textContent="Flashcard mode: "+(flipMode?"on":"off");
+  renderDeck();
+  toast(flipMode?"Flashcard mode on — tap a card to reveal its answer.":"Flashcard mode off.");
+}
+/* ---- drill + mock ---- */
+var drillTimer=null,drillLeft=0,drillQs=[],drillIdx=0,drillRight=0,drillAsked=0;
+function shuffle(a){var x=a.slice();for(var i=x.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=x[i];x[i]=x[j];x[j]=t;}return x;}
+function showDrill(id){["drillIdle","drillRun","drillDone"].forEach(function(x){$(x).style.display=x===id?"":"none";});}
+function startDrill(){
+  if(drillTimer)clearInterval(drillTimer);
+  drillQs=shuffle(QUESTIONS);drillIdx=0;drillRight=0;drillAsked=0;drillLeft=60;
+  $("drillTime").textContent="60";$("drillBar").style.width="100%";
+  showDrill("drillRun");nextDrillQ();
+  drillTimer=setInterval(function(){
+    drillLeft--;if(drillLeft<0)drillLeft=0;
+    $("drillTime").textContent=drillLeft;$("drillBar").style.width=(drillLeft/60*100)+"%";
+    if(drillLeft<=0)endDrill();
+  },1000);
+}
+function nextDrillQ(){
+  if(drillIdx>=drillQs.length)drillQs=shuffle(QUESTIONS),drillIdx=0;
+  $("drillQ").textContent=drillQs[drillIdx].q;
+}
+function drillAnswer(ok){
+  drillAsked++;if(ok)drillRight++;drillIdx++;nextDrillQ();
+}
+function endDrill(){
+  if(drillTimer){clearInterval(drillTimer);drillTimer=null;}
+  showDrill("drillDone");
+  $("drillScore").textContent=drillRight;$("drillTotal").textContent=drillAsked;
+  var v=drillAsked===0?"No answers yet — go again and tap Got it or Missed it for each question."
+    :drillRight/drillAsked>=0.8?"Sharp. That is interview pace."
+    :drillRight/drillAsked>=0.5?"Solid — but the missed ones go straight to your review list."
+    :"Honest result. The missed questions are your revision list now.";
+  $("drillVerdict").textContent=v;
+  if(drillRight>state.drillBest){state.drillBest=drillRight;save();toast("New best drill score: "+drillRight+"!");}
+  $("drillBestLabel").textContent=state.drillBest?String(state.drillBest):"—";
+  renderDash();
+}
+var mockTimer=null,mockQs=[],mockIdx=0,mockRight=0,mockLeft=120;
+function showMock(id){["mockIdle","mockRun","mockDone"].forEach(function(x){$(x).style.display=x===id?"":"none";});}
+function mockPick(){
+  var out=[];TOPICS.forEach(function(t){var pool=shuffle(QUESTIONS.filter(function(q){return q.topic===t.id;}));out.push(pool[0],pool[1]);});
+  return shuffle(out);
+}
+function startMock(){
+  if(mockTimer)clearInterval(mockTimer);
+  mockQs=mockPick();mockIdx=0;mockRight=0;
+  showMock("mockRun");nextMockQ();
+}
+function nextMockQ(){
+  mockLeft=120;
+  $("mockPos").textContent="Question "+(mockIdx+1)+" of "+mockQs.length;
+  $("mockQ").textContent=mockQs[mockIdx].q;
+  $("mockBar").style.width="100%";
+  if(mockTimer)clearInterval(mockTimer);
+  mockTimer=setInterval(function(){
+    mockLeft--;
+    var m=Math.floor(Math.max(mockLeft,0)/60),s=Math.max(mockLeft,0)%60;
+    $("mockTime").textContent=m+":"+String(s).padStart(2,"0");
+    $("mockBar").style.width=(Math.max(mockLeft,0)/120*100)+"%";
+    if(mockLeft<=0){mockAnswer(false);}
+  },1000);
+  $("mockTime").textContent="2:00";
+}
+function mockAnswer(ok){
+  if(mockTimer){clearInterval(mockTimer);mockTimer=null;}
+  if(ok)mockRight++;
+  var q=mockQs[mockIdx];
+  if(!ok&&q)state.known[q.id]="review";
+  mockIdx++;
+  if(mockIdx>=mockQs.length){endMock(true);}else{nextMockQ();}
+  save();
+}
+function endMock(finished){
+  if(mockTimer){clearInterval(mockTimer);mockTimer=null;}
+  if(!finished&&mockIdx===0){showMock("mockIdle");return;}
+  showMock("mockDone");
+  var total=mockQs.length,got=mockRight;
+  if(state.mockBest==null||got>state.mockBest){state.mockBest=got;save();}
+  $("mockScore").textContent=got+"/"+total;
+  $("mockBestLabel").textContent=state.mockBest+"/10";
+  var v=got>=9?"Interview-ready.":got>=7?"Strong — polish the shaky ones.":got>=5?"Getting there — revise the weak topic below.":"The deck needs you. Start with the weakest topic.";
+  $("mockVerdict").textContent=v;
+  var w=weakestTopic();
+  $("mockWeak").textContent="Best so far: "+state.mockBest+"/10 · Weakest topic: "+w.w.name+" ("+w.pc+"%).";
+  var revise=QUESTIONS.filter(function(q){return state.known[q.id]==="review";}).slice(0,5);
+  $("mockRevise").innerHTML=revise.length?"<b style='color:var(--amber)'>Revise next:</b><br>"+revise.map(function(q){return "· "+esc(q.q);}).join("<br>"):"No questions marked for review — the deck is clean.";
+  renderDash();renderDeck();renderTopics();
+}
 <!-- @@NEXT@@ -->
