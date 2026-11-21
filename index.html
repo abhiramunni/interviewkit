@@ -474,4 +474,93 @@ footer{border-top:1px solid var(--line);padding:34px 0 44px}
     </div>
   </div>
 </section>
+<section id="daySec" style="padding-top:10px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="kicker">The day itself</p>
+        <h2>Interview-day checklist</h2>
+        <p class="helper">Most interviews are lost before the first question — a dead laptop battery, no ID, no questions prepared. Tick these off and that won't be you.</p>
+      </div>
+      <span class="chip"><b id="checkPct">0%</b>&nbsp;done</span>
+    </div>
+    <div class="split">
+      <div>
+        <p class="kicker" style="margin-bottom:10px">The day before</p>
+        <div class="check-list" id="checkBefore"></div>
+      </div>
+      <div>
+        <p class="kicker" style="margin-bottom:10px">Interview day</p>
+        <div class="check-list" id="checkDay"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="guideSec" style="padding-top:10px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="kicker">Plain-words guides</p>
+        <h2>Six things nobody tells freshers</h2>
+      </div>
+    </div>
+    <div class="guide-grid" id="guideGrid"></div>
+  </div>
+</section>
+
+<section style="padding-top:10px">
+  <div class="wrap">
+    <div class="photoband">
+      <img src="{{FLATLAY_IMG}}" alt="Interview preparation flat-lay: laptop, notebook, flashcards and coffee" loading="lazy">
+      <div class="cap">
+        <h3>Preparation is the only part you control.</h3>
+        <p>The questions, the timing, the nerves — all of it gets easier when the answers are already in your head.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div>
+      <p class="serif" style="font-size:22px;font-weight:700">InterviewKit</p>
+      <p class="helper" style="max-width:420px;margin-top:6px">Your data never leaves this device — everything is saved in localStorage. Copy a summary to share your progress, remove the samples, or start over with two taps.</p>
+    </div>
+    <div class="btns">
+      <button class="btn ghost" type="button" onclick="InterviewKit.copySummary()">Copy my summary</button>
+      <button class="btn ghost" type="button" onclick="InterviewKit.removeSamples()">Remove samples</button>
+      <button class="btn danger" type="button" onclick="InterviewKit.eraseAll(this)">Erase everything</button>
+    </div>
+  </div>
+</footer>
+
+<div class="sheet-back" id="ivSheetBack" onclick="if(event.target===this)InterviewKit.closeInterviewForm()">
+  <div class="sheet" role="dialog" aria-label="Set your interview">
+    <h3>Set your interview</h3>
+    <p class="helper" style="margin:6px 0 16px">The countdown, the checklist and your summary all follow this. Nothing is uploaded anywhere.</p>
+    <div class="field"><label for="ivRoleIn">Role you're applying for</label><input id="ivRoleIn" value="Network Engineer" autocomplete="off"></div>
+    <div class="field"><label for="ivCoIn">Company</label><input id="ivCoIn" value="Example Corp" autocomplete="off"></div>
+    <div class="field"><label for="ivDateIn">Interview date</label><input id="ivDateIn" type="date" value="2026-11-28"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn amber" type="button" onclick="InterviewKit.saveInterview()">Save interview</button>
+      <button class="btn ghost" type="button" onclick="InterviewKit.closeInterviewForm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="coach" role="dialog" aria-label="Quick tour">
+  <div class="sheet">
+    <p class="kicker" id="coachKicker">Step 1 of 3</p>
+    <h3 id="coachTitle">Mark what you know</h3>
+    <p id="coachBody" style="font-size:15px;color:var(--ink2)">Open the question deck and tap a card. Read the model answer, then mark it "I know this" only if you could say it out loud. The readiness ring is honest — it only counts those.</p>
+    <div class="dots"><i class="on"></i><i></i><i></i></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn amber" type="button" id="coachNext" onclick="InterviewKit.coachNext()">Next</button>
+      <button class="btn ghost" type="button" onclick="InterviewKit.coachSkip()">Skip tour</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
 <!-- @@NEXT@@ -->
