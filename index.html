@@ -277,4 +277,47 @@ footer{border-top:1px solid var(--line);padding:34px 0 44px}
     </div>
   </div>
 </section>
+<section id="dashSec">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="kicker">Your readiness</p>
+        <h2>How ready are you, honestly?</h2>
+        <p class="helper">Mark a question "I know this" only when you could answer it out loud, without peeking. The ring only counts those.</p>
+      </div>
+    </div>
+    <div class="dash">
+      <div class="card ring-card">
+        <div class="ring-wrap">
+          <svg viewBox="0 0 190 190"><circle cx="95" cy="95" r="82" fill="none" stroke="rgba(43,29,18,.1)" stroke-width="13"/><circle id="readRing" cx="95" cy="95" r="82" fill="none" stroke="#c96f3f" stroke-width="13" stroke-linecap="round" stroke-dasharray="515" stroke-dashoffset="515"/></svg>
+          <div class="ring-num"><b id="readPct">0%</b><span>ready</span></div>
+        </div>
+        <p class="helper" id="readLine" style="margin-top:8px">0 of 60 questions marked known</p>
+        <p class="helper" id="weakLine" style="margin-top:4px"></p>
+      </div>
+      <div>
+        <div class="stat-grid">
+          <div class="stat"><b id="stKnown">0</b><span>questions known</span></div>
+          <div class="stat"><b id="stReview">0</b><span>marked to review</span></div>
+          <div class="stat"><b id="stDrill">—</b><span>best rapid-fire score</span></div>
+          <div class="stat"><b id="stMock">—</b><span>best mock score</span></div>
+        </div>
+        <div class="topic-bars" id="topicBars"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="topicSec" style="padding-top:10px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="kicker">Five battlegrounds</p>
+        <h2>Pick a topic. Own it.</h2>
+      </div>
+      <p class="helper">Tap a card to open its questions in the deck below.</p>
+    </div>
+    <div class="rail" id="topicRail"></div>
+  </div>
+</section>
 <!-- @@NEXT@@ -->
