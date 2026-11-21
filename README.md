@@ -3,6 +3,7 @@
 Sixty questions a real interviewer asks — CCNA fundamentals, routing and switching, FortiGate security, troubleshooting, and the HR round — each with a plain-words model answer. Mark what you know, drill what you don't, then sit a timed mock before the day.
 
 Live: **https://abhiramunni.github.io/interviewkit/**
+Published: 21 Nov 2026
 
 ## What it does
 
