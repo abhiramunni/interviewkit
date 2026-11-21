@@ -361,4 +361,63 @@ footer{border-top:1px solid var(--line);padding:34px 0 44px}
     <p class="helper" style="margin-top:12px">Honest marking is the whole point — the readiness ring only counts "I know this".</p>
   </div>
 </div>
+<section id="stageSec" style="padding-top:10px">
+  <div class="wrap">
+    <div class="stage">
+      <p class="kicker">Under pressure, on purpose</p>
+      <h2>Rehearse the real thing</h2>
+      <p class="helper">A rapid-fire drill sharpens recall. A timed mock teaches you to think out loud with the clock running — exactly like the real room.</p>
+      <div class="stage-grid">
+        <div class="stage-card" id="drillCard">
+          <h3>Rapid-fire drill</h3>
+          <p>60 seconds. Random questions. Could you answer each one out loud? Be honest — nobody is watching.</p>
+          <div id="drillIdle">
+            <div class="big-timer">60<small> sec</small></div>
+            <p style="text-align:center;color:var(--muted);font-size:13px">Best score: <b id="drillBestLabel" style="color:var(--amber)">—</b></p>
+            <button class="btn amber" type="button" style="width:100%;justify-content:center;margin-top:14px" onclick="InterviewKit.startDrill()">Start the drill</button>
+          </div>
+          <div id="drillRun" style="display:none">
+            <div class="big-timer"><span id="drillTime">60</span><small> sec left</small></div>
+            <div class="progress-line"><i id="drillBar" style="width:100%"></i></div>
+            <div class="drill-q" id="drillQ"></div>
+            <div style="display:flex;gap:10px">
+              <button class="btn amber" type="button" style="flex:1;justify-content:center" onclick="InterviewKit.drillAnswer(true)">Got it</button>
+              <button class="btn ghost-l" type="button" style="flex:1;justify-content:center" onclick="InterviewKit.drillAnswer(false)">Missed it</button>
+            </div>
+          </div>
+          <div id="drillDone" style="display:none;text-align:center">
+            <div class="big-timer"><span id="drillScore">0</span><small> / <span id="drillTotal">0</span> right</small></div>
+            <p style="color:var(--muted);font-size:14px" id="drillVerdict"></p>
+            <button class="btn amber" type="button" style="width:100%;justify-content:center;margin-top:14px" onclick="InterviewKit.startDrill()">Go again</button>
+          </div>
+        </div>
+        <div class="stage-card" id="mockCard">
+          <h3>Timed mock interview</h3>
+          <p>10 questions — two from each topic. Two minutes per question, then grade yourself honestly.</p>
+          <div id="mockIdle">
+            <div class="big-timer">10<small> questions &middot; 20 min</small></div>
+            <p style="text-align:center;color:var(--muted);font-size:13px">Best score: <b id="mockBestLabel" style="color:var(--amber)">—</b></p>
+            <button class="btn amber" type="button" style="width:100%;justify-content:center;margin-top:14px" onclick="InterviewKit.startMock()">Start the mock</button>
+          </div>
+          <div id="mockRun" style="display:none">
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)"><span id="mockPos">Question 1 of 10</span><span><b id="mockTime" style="color:var(--amber)">2:00</b> left</span></div>
+            <div class="progress-line" style="margin-top:8px"><i id="mockBar" style="width:100%"></i></div>
+            <div class="mock-q" id="mockQ"></div>
+            <p style="font-size:13px;color:var(--muted)">Say your answer out loud, then grade it:</p>
+            <div style="display:flex;gap:10px;margin-top:10px">
+              <button class="btn amber" type="button" style="flex:1;justify-content:center" onclick="InterviewKit.mockAnswer(true)">Answered well</button>
+              <button class="btn ghost-l" type="button" style="flex:1;justify-content:center" onclick="InterviewKit.mockAnswer(false)">Shaky</button>
+            </div>
+            <button class="btn ghost-l small" type="button" style="margin-top:10px" onclick="InterviewKit.endMock()">End mock early</button>
+          </div>
+          <div id="mockDone" style="display:none">
+            <div class="score-ring"><div class="n" id="mockScore">0/10</div><div><div class="verdict" id="mockVerdict">—</div><p style="font-size:13.5px;color:var(--muted)" id="mockWeak"></p></div></div>
+            <div id="mockRevise" style="margin-top:12px;font-size:14px"></div>
+            <button class="btn amber" type="button" style="width:100%;justify-content:center;margin-top:14px" onclick="InterviewKit.startMock()">Sit it again</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 <!-- @@NEXT@@ -->
