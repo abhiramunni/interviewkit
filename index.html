@@ -420,4 +420,58 @@ footer{border-top:1px solid var(--line);padding:34px 0 44px}
     </div>
   </div>
 </section>
+<section id="labSec" style="padding-top:10px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="kicker">Tools for the technical round</p>
+        <h2>Subnet lab &amp; STAR builder</h2>
+        <p class="helper">Two things interviewers test constantly: can you subnet without a calculator, and can you tell a story with a beginning, a middle and a result?</p>
+      </div>
+    </div>
+    <div class="split">
+      <div class="card" style="padding:24px">
+        <h3 style="font-size:22px">Subnet lab</h3>
+        <p class="helper" style="margin:6px 0 16px">Type any IP and prefix. The network, broadcast, usable range and host count appear instantly — no calculator, just like the whiteboard.</p>
+        <div style="display:flex;gap:10px">
+          <div class="field" style="flex:1"><label for="subIp">IP address</label><input id="subIp" value="192.168.1.10" inputmode="decimal" autocomplete="off"></div>
+          <div class="field" style="width:110px"><label for="subCidr">Prefix</label><select id="subCidr"></select></div>
+        </div>
+        <p class="helper" id="subErr" style="color:var(--bad);min-height:18px"></p>
+        <div class="result-grid" id="subOut">
+          <div class="r"><span>Network</span><b id="subNet">—</b></div>
+          <div class="r"><span>Broadcast</span><b id="subBc">—</b></div>
+          <div class="r"><span>Usable range</span><b id="subRange">—</b></div>
+          <div class="r"><span>Usable hosts</span><b id="subHosts">—</b></div>
+          <div class="r"><span>Subnet mask</span><b id="subMask">—</b></div>
+          <div class="r"><span>Wildcard mask</span><b id="subWild">—</b></div>
+        </div>
+        <p class="helper" style="margin-top:14px">Tap a common prefix to try it:</p>
+        <div class="cheat">
+          <button type="button" onclick="InterviewKit.subnetTry('10.0.0.5',8)">10.0.0.5 /8</button>
+          <button type="button" onclick="InterviewKit.subnetTry('172.16.5.20',20)">172.16.5.20 /20</button>
+          <button type="button" onclick="InterviewKit.subnetTry('192.168.10.77',26)">192.168.10.77 /26</button>
+          <button type="button" onclick="InterviewKit.subnetTry('192.168.1.130',28)">192.168.1.130 /28</button>
+          <button type="button" onclick="InterviewKit.subnetTry('10.10.10.10',30)">10.10.10.10 /30</button>
+          <button type="button" onclick="InterviewKit.subnetTry('192.168.1.10',24)">192.168.1.10 /24</button>
+        </div>
+      </div>
+      <div class="card" style="padding:24px">
+        <h3 style="font-size:22px">STAR answer builder</h3>
+        <p class="helper" style="margin:6px 0 16px">Behavioural questions are won with a story: Situation, Task, Action, Result. Fill the four boxes and get a copy-ready answer.</p>
+        <div class="field"><label for="starRole">The question it answers</label><input id="starRole" placeholder="e.g. Tell me about a time you solved a tough problem" autocomplete="off"></div>
+        <div class="field"><label for="starS">Situation — where were you?</label><textarea id="starS" placeholder="e.g. A week before our college fest, the Wi-Fi for 200 people went down."></textarea></div>
+        <div class="field"><label for="starT">Task — what was your job?</label><textarea id="starT" placeholder="e.g. Get everyone back online before the event started."></textarea></div>
+        <div class="field"><label for="starA">Action — what did you actually do?</label><textarea id="starA" placeholder="e.g. I traced it to a switching loop, shut the redundant port, and re-tested every access point."></textarea></div>
+        <div class="field"><label for="starR">Result — what changed?</label><textarea id="starR" placeholder="e.g. The fest ran on time, and I wrote a checklist so it never happens again."></textarea></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn amber" type="button" onclick="InterviewKit.buildStar()">Build my answer</button>
+          <button class="btn ghost" type="button" onclick="InterviewKit.saveStar()">Save this story</button>
+        </div>
+        <div class="star-out" id="starOut" style="display:none"></div>
+        <div id="starList"></div>
+      </div>
+    </div>
+  </div>
+</section>
 <!-- @@NEXT@@ -->
